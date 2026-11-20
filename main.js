@@ -31,7 +31,19 @@ gallery.querySelectorAll('.copy').forEach(p=>{if(parseFloat(p.style.top)>240)p.h
 const carousel=document.createElement('div');carousel.className='carousel';carousel.setAttribute('aria-label','Галерея проектов');carousel.innerHTML='<div class="gallery-cards"></div><div class="gallery-controls"><button aria-label="Предыдущий проект"><svg viewBox="1201 7161 44 44" aria-hidden="true"><path d="M1220 7174.5L1211.5 7183L1220 7191.5 M1212 7183H1234"/></svg></button><span class="sr-only" aria-live="polite"></span><button aria-label="Следующий проект"><svg viewBox="1261 7161 44 44" aria-hidden="true"><path d="M1286 7174.5L1294.5 7183L1286 7191.5 M1294 7183H1272"/></svg></button></div>';gallery.append(carousel);
 const slides=[{title:'Природная эстетика',image:'image-4.jpg',text:projects[0].text},{title:'Естественный ритм',image:'image-0.jpg',text:projects[1].text},{title:'Тихая гармония',image:'image-5.jpg',text:projects[2].text}];let current=0;
 function renderGallery(){carousel.querySelector('.gallery-cards').innerHTML=[-1,0,1].map(offset=>{const p=slides[(current+offset+3)%3];return `<button class="gallery-card position-${offset+1}" data-offset="${offset}" aria-label="${offset===0?'Открыть проект':'Показать проект'} ${p.title}"><img src="${assetRoot+p.image}" alt="${p.title}"><span>${p.title}</span></button>`;}).join('');carousel.querySelector('[aria-live]').textContent=`0${current+1} / 03`;carousel.querySelectorAll('[data-offset]').forEach(b=>b.onclick=()=>{const offset=Number(b.dataset.offset);if(!offset)openProject(slides[current]);else moveGallery(offset);});}
-function moveGallery(delta){current=(current+delta+3)%3;renderGallery();}
+let galleryAnimating=false;
+async function moveGallery(delta){
+ if(galleryAnimating)return;
+ if(matchMedia('(prefers-reduced-motion: reduce)').matches){current=(current+delta+3)%3;renderGallery();return;}
+ galleryAnimating=true;
+ const cards=carousel.querySelector('.gallery-cards');
+ try{
+  await cards.animate([{opacity:1,transform:'translateX(0)'},{opacity:0,transform:`translateX(${-delta*60}px)`}],{duration:180,easing:'ease-in',fill:'forwards'}).finished;
+  current=(current+delta+3)%3;renderGallery();
+  cards.getAnimations().forEach(a=>a.cancel());
+  await cards.animate([{opacity:0,transform:`translateX(${delta*60}px)`},{opacity:1,transform:'translateX(0)'}],{duration:300,easing:'ease-out'}).finished;
+ }finally{cards.getAnimations().forEach(a=>a.cancel());galleryAnimating=false;}
+}
 carousel.querySelector('[aria-label="Предыдущий проект"]').onclick=()=>moveGallery(-1);carousel.querySelector('[aria-label="Следующий проект"]').onclick=()=>moveGallery(1);carousel.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();moveGallery(e.key==='ArrowLeft'?-1:1);}});renderGallery();
 const awards=document.querySelector('#awards .canvas');const awardPhoto=document.createElement('figure');awardPhoto.className='award-photo';awardPhoto.innerHTML='<img alt=""><figcaption></figcaption>';awards.append(awardPhoto);
 const awardText=[...awards.querySelectorAll('p.copy')];awardText.filter(p=>parseFloat(p.style.left)>900).forEach(p=>p.hidden=true);
@@ -90,3 +102,16 @@ for(const item of document.querySelectorAll('#hero .copy')){
 document.body.append(sticky);
 function updateSticky(){sticky.hidden=document.querySelector('#about').getBoundingClientRect().top>0;}
 addEventListener('scroll',updateSticky,{passive:true});addEventListener('resize',updateSticky);updateSticky();
+
+// All studio logos return to the start of this one-page website.
+for(const el of document.querySelectorAll('#hero p.copy, .sticky-menu p.copy, #footer h2.copy')){
+ if(el.textContent.trim()!=='Inter')continue;
+ const link=document.createElement('a');for(const attr of el.attributes)link.setAttribute(attr.name,attr.value);
+ link.href='#hero';link.setAttribute('aria-label','Inter — на главную');link.innerHTML=el.innerHTML;el.replaceWith(link);
+}
+document.fonts.ready.then(()=>{
+ for(const item of sticky.querySelectorAll('.copy')){
+  const source=[...document.querySelectorAll('#hero .copy')].find(el=>el.style.left===item.style.left&&el.textContent===item.textContent);
+  if(source){item.style.width=source.style.width;item.style.height=source.style.height;item.style.setProperty('--baseline-offset',source.style.getPropertyValue('--baseline-offset'));}
+ }
+});

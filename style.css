@@ -17,3 +17,7 @@
 .sticky-menu .menu-cta:before{content:'';position:absolute;left:-25.5px;top:-26.862px;width:165px;height:43px;border:1px solid #292929;background:white}
 .sticky-menu .menu-cta:hover{color:white!important}.sticky-menu .menu-cta:hover:before{background:#292929}
 .section:not(.hero){scroll-margin-top:94px}
+
+.gallery-controls button{border-radius:0}
+.sticky-menu{height:78px}.sticky-menu .canvas{top:-8px}.section:not(.hero){scroll-margin-top:78px}
+.process-cta:before{border-width:1px}
