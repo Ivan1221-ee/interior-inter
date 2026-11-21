@@ -1,6 +1,6 @@
 function resizeGallery(){document.documentElement.style.setProperty('--gallery-scale',document.documentElement.clientWidth/1440)}
 resizeGallery();window.addEventListener('resize',resizeGallery);
-document.fonts.ready.then(()=>{const ctx=document.createElement('canvas').getContext('2d');document.querySelectorAll('.copy').forEach(p=>{const s=getComputedStyle(p),size=parseFloat(s.fontSize);ctx.font=`${s.fontWeight} ${s.fontSize} ${s.fontFamily}`;const m=ctx.measureText('Hg');p.style.setProperty('--baseline-offset',-((m.fontBoundingBoxAscent-m.fontBoundingBoxDescent+size)/2)+'px');const lines=[...p.querySelectorAll('.line')];p.style.width=Math.max(...lines.map(l=>l.offsetLeft+l.offsetWidth))+'px';p.style.height=Math.max(...lines.map(l=>l.offsetTop+l.offsetHeight))+'px';});document.documentElement.dataset.fontsReady='true'});
+document.fonts.ready.then(()=>{const ctx=document.createElement('canvas').getContext('2d');document.querySelectorAll('.copy').forEach(p=>{const s=getComputedStyle(p),size=parseFloat(s.fontSize);ctx.font=`${s.fontWeight} ${s.fontSize} ${s.fontFamily}`;const m=ctx.measureText('Hg');p.style.setProperty('--baseline-offset',-((m.fontBoundingBoxAscent-m.fontBoundingBoxDescent+size)/2)+'px');const lines=[...p.querySelectorAll('.line')];p.style.width=Math.max(...lines.map(l=>parseFloat(l.style.left)+ctx.measureText(l.textContent).width))+'px';p.style.height=Math.max(...lines.map(l=>parseFloat(l.style.top)+size))+'px';});document.documentElement.dataset.fontsReady='true'});
 
 // Native controls layered over the original artwork preserve the desktop layout.
 const assetRoot = document.querySelector('.hero-photo').getAttribute('data').replace('hero.svg','');
@@ -107,7 +107,7 @@ addEventListener('scroll',updateSticky,{passive:true});addEventListener('resize'
 for(const el of document.querySelectorAll('#hero p.copy, .sticky-menu p.copy, #footer h2.copy')){
  if(el.textContent.trim()!=='Inter')continue;
  const link=document.createElement('a');for(const attr of el.attributes)link.setAttribute(attr.name,attr.value);
- link.href='#hero';link.setAttribute('aria-label','Inter — на главную');link.innerHTML=el.innerHTML;el.replaceWith(link);
+ link.href='./';link.setAttribute('aria-label','Inter — на главную');link.innerHTML=el.innerHTML;el.replaceWith(link);
 }
 document.fonts.ready.then(()=>{
  for(const item of sticky.querySelectorAll('.copy')){
@@ -115,3 +115,49 @@ document.fonts.ready.then(()=>{
   if(source){item.style.width=source.style.width;item.style.height=source.style.height;item.style.setProperty('--baseline-offset',source.style.getPropertyValue('--baseline-offset'));}
  }
 });
+
+// Mobile layout uses the same content, photos, dialogs and validation as desktop.
+const mobile=document.createElement('main');mobile.className='mobile-site';
+const plain=el=>el?el.textContent.replace(/\s+/g,' ').trim():'';
+const sourceText=selector=>[...document.querySelectorAll(selector)].map(plain);
+const imageTag=(file,alt,cls='')=>`<img class="${cls}" src="${assetRoot+file}" alt="${alt}" loading="lazy">`;
+const serviceNodes=[...document.querySelectorAll('#services .copy')];
+const serviceItems=[208,409,610,811].map(y=>({title:plain(serviceNodes.find(el=>el.style.fontSize==='25px'&&Math.abs(parseFloat(el.style.top)-y)<3)),description:plain(serviceNodes.find(el=>Math.abs(parseFloat(el.style.top)-(y+48))<3))}));
+let steps=[['Консультация','На первой встрече обсудим ваши пожелания, стиль и бюджет.'],['Создание концепции','Разработаем планировку, эскизы и общее настроение будущего интерьера.'],['Проектирование','Проработаем детали, подготовим рабочие чертежи и спецификации.'],['Реализация проекта','Проконтролируем работы и согласуем решения с подрядчиками.'],['Декорирование и финализация','Подберём мебель, текстиль и аксессуары, чтобы интерьер приобрёл завершённый вид.']];
+const processNodes=[...document.querySelectorAll('#process .copy')];
+steps=steps.map(([title,text],i)=>[title,plain(processNodes.find(el=>Math.abs(parseFloat(el.style.top)-[445.13,557.13,428.13,792.13,846.13][i])<.1))||text]);
+const projectDescriptions=[272.63,901.63,1610.63].map(y=>plain([...document.querySelectorAll('#projects p.copy')].find(el=>Math.abs(parseFloat(el.style.top)-y)<.1)));
+const reviewNodes=[...document.querySelectorAll('#reviews p.copy')];
+const reviews=[180,580,980].map(x=>({text:plain(reviewNodes.find(el=>parseFloat(el.style.left)===x&&parseFloat(el.style.top)<350)),name:plain(reviewNodes.find(el=>parseFloat(el.style.left)===x+44))}));
+mobile.innerHTML=`
+<header class="m-header"><a class="m-logo" href="./" aria-label="Inter — на главную">Inter</a><button class="m-menu-toggle" aria-label="Открыть меню" aria-expanded="false" aria-controls="mobile-navigation"><span></span><span></span></button><nav id="mobile-navigation" hidden><a href="#m-projects">Наши проекты</a><a href="#m-services">Услуги</a><a href="#m-reviews">Отзывы</a><a href="#m-contact">Контакты</a><button class="ui-button" data-mobile-consult>Обсудить проект</button></nav></header>
+<section class="m-hero"><img src="${assetRoot}image-12.jpg" alt="Светлый интерьер гостиной" fetchpriority="high"><div><h1>Создаем интерьеры, отражающие вашу индивидуальность</h1><p>Полный спектр услуг по дизайну интерьера, от концепции до реализации</p><button class="ui-button m-light" data-mobile-consult>Рассчитать стоимость</button></div></section>
+<section class="m-section m-about"><h2>О нас</h2>${imageTag('image-11.jpg','Интерьер загородного дома')}<p>Наши проекты — это гармония эстетики, функциональности и комфорта, созданные с учетом ваших пожеланий и особенностей пространства.</p><p>Независимо от масштаба проекта, будь то уютная квартира или роскошный дом, мы подходим к каждому заданию с одинаковым энтузиазмом и профессионализмом.</p><button class="m-text-button" data-about>Узнать больше</button>${imageTag('image-10.png','Детали интерьера')}</section>
+<section id="m-projects" class="m-section"><h2>Мы верим, что каждый проект — это возможность создать что-то особенное</h2>${projects.map((p,i)=>`<article class="m-project">${imageTag(p.image,p.title)}<h3>${p.title}</h3><p>${projectDescriptions[i]}</p><button class="m-text-button" data-project="${i}">Смотреть проект</button></article>`).join('')}</section>
+<section class="m-section m-awards"><h2>Награды</h2>${['Диплом международной школы дизайна','Премия «Лучший интерьер года»','Участие в выставке «Тренды дизайна»'].map((title,i)=>`<button class="m-award" data-award="${i}" aria-pressed="${i===1}"><span>${['январь 2025','октябрь 2023','март 2024'][i]}</span><strong>${title}</strong></button>`).join('')}<figure>${imageTag(projects[1].image,projects[1].title)}<figcaption>${projects[1].title}</figcaption></figure></section>
+<section id="m-services" class="m-section m-dark"><h2>Наши услуги</h2>${serviceItems.map((s,i)=>`<article class="m-service"><span>0${i+1}</span><h3>${s.title}</h3><p>${s.description}</p><button class="m-text-button" data-service="${i}">Узнать подробнее</button></article>`).join('')}</section>
+<section class="m-section"><h2>Как мы работаем</h2><p class="m-intro">Мы разработали четкий и понятный процесс работы, чтобы обеспечить вам максимальное удобство и результат.</p><ol class="m-steps">${steps.map(([title,text],i)=>`<li><span>0${i+1}</span><div><h3>${title}</h3><p>${text}</p></div></li>`).join('')}</ol><button class="ui-button m-outline" data-mobile-consult>Обсудить проект</button></section>
+<section class="m-section m-gallery"><h2>Галерея выполненных работ</h2><p>Ознакомьтесь с нашими реализованными проектами, чтобы вдохновиться и понять, как мы можем преобразить ваше пространство.</p><div class="m-slide"></div><div class="m-gallery-controls"><button aria-label="Предыдущий проект"><svg viewBox="1201 7161 44 44" aria-hidden="true"><path d="M1220 7174.5L1211.5 7183L1220 7191.5 M1212 7183H1234"/></svg></button><button aria-label="Следующий проект"><svg viewBox="1261 7161 44 44" aria-hidden="true"><path d="M1286 7174.5L1294.5 7183L1286 7191.5 M1294 7183H1272"/></svg></button></div><p class="sr-only m-slide-status" aria-live="polite"></p></section>
+<section id="m-reviews" class="m-section m-dark"><h2>Отзывы о работе</h2><p class="m-intro">Ваше мнение для нас важно. Вот что говорят о нашей работе те, кто уже доверил нам создание своего идеального интерьера.</p><div class="m-review-list">${reviews.map((r,i)=>`<article class="m-review"><p>${r.text}</p><div>${imageTag('image-'+(i+1)+'.jpg',r.name)}<span>${r.name}</span></div></article>`).join('')}</div></section>
+<section id="m-contact" class="m-section"><h2>Дом, в который всегда хочется возвращаться</h2><p>Inter — команда, которая поможет вам воплотить в жизнь ваши мечты о доме.</p><h2 class="m-form-title">Обсудить проект</h2><form class="consult-form"><label><span class="sr-only">Ваше имя</span><input name="name" autocomplete="name" placeholder="Ваше имя" required></label><label><span class="sr-only">Телефон</span><input name="phone" type="tel" required></label><label class="form-consent"><input type="checkbox" required><span>Я даю своё согласие на обработку персональных данных и соглашаюсь с политикой конфиденциальности</span></label><button type="submit" class="ui-button">Получить консультацию</button><p class="form-status" role="status"></p></form><div class="m-contact-info"><h2>Контакты</h2><a href="tel:+78125550550">+7 (812) 555-05-50</a><a href="mailto:interior@gmail.com">interior@gmail.com</a><p>Санкт-Петербург, ул. Ленина, д. 89, офис 12</p></div>${imageTag('image-0.jpg','Интерьер гостиной Inter')}</section>
+<footer class="m-section m-dark"><a class="m-logo" href="./" aria-label="Inter — на главную">Inter</a><nav><a href="#m-projects">Наши проекты</a><a href="#m-services">Услуги</a><a href="#m-reviews">Отзывы</a><a href="#m-contact">Контакты</a></nav><p>Согласие на обработку персональных данных</p><p>Политика конфиденциальности</p></footer>`;
+document.body.insertBefore(mobile,dialog);
+const menuToggle=mobile.querySelector('.m-menu-toggle'),mobileNav=mobile.querySelector('#mobile-navigation');
+function closeMobileMenu(){mobileNav.hidden=true;menuToggle.setAttribute('aria-expanded','false');menuToggle.setAttribute('aria-label','Открыть меню');}
+menuToggle.onclick=()=>{const open=mobileNav.hidden;mobileNav.hidden=!open;menuToggle.setAttribute('aria-expanded',String(open));menuToggle.setAttribute('aria-label',open?'Закрыть меню':'Открыть меню');};
+mobileNav.querySelectorAll('a').forEach(a=>a.onclick=closeMobileMenu);
+mobile.querySelectorAll('[data-mobile-consult]').forEach(b=>b.onclick=()=>{closeMobileMenu();openConsult();});
+mobile.addEventListener('keydown',e=>{if(e.key==='Escape')closeMobileMenu();});
+mobile.querySelector('[data-about]').onclick=()=>document.querySelector('#about .interactive-copy').click();
+mobile.querySelectorAll('[data-project]').forEach(b=>b.onclick=()=>openProject(projects[Number(b.dataset.project)]));
+mobile.querySelectorAll('[data-service]').forEach(b=>b.onclick=()=>{const s=serviceItems[Number(b.dataset.service)];openProject({title:s.title,image:'image-9.jpg',text:s.description});});
+mobile.querySelectorAll('[data-award]').forEach(b=>b.onclick=()=>{mobile.querySelectorAll('[data-award]').forEach(el=>el.setAttribute('aria-pressed',String(el===b)));const p=projects[Number(b.dataset.award)];const fig=mobile.querySelector('.m-awards figure');fig.querySelector('img').src=assetRoot+p.image;fig.querySelector('img').alt=p.title;fig.querySelector('figcaption').textContent=p.title;});
+setupForm(mobile.querySelector('form'));
+let mobileSlide=0,mobileMoving=false;
+const slideEl=mobile.querySelector('.m-slide');
+function renderMobileSlide(){const p=slides[mobileSlide];slideEl.innerHTML=`<button aria-label="Открыть проект ${p.title}">${imageTag(p.image,p.title)}<span>${p.title}</span></button>`;slideEl.querySelector('button').onclick=()=>openProject(p);mobile.querySelector('.m-slide-status').textContent=`${p.title}, ${mobileSlide+1} из 3`;}
+async function moveMobileSlide(delta){if(mobileMoving)return;mobileMoving=true;mobileSlide=(mobileSlide+delta+3)%3;renderMobileSlide();if(!matchMedia('(prefers-reduced-motion: reduce)').matches)await slideEl.animate([{opacity:.3,transform:`translateX(${delta*24}px)`},{opacity:1,transform:'translateX(0)'}],{duration:320,easing:'ease-out'}).finished;mobileMoving=false;}
+mobile.querySelectorAll('.m-gallery-controls button').forEach((b,i)=>b.onclick=()=>moveMobileSlide(i?1:-1));
+let touchStart;slideEl.addEventListener('touchstart',e=>{touchStart=[e.touches[0].clientX,e.touches[0].clientY];},{passive:true});slideEl.addEventListener('touchend',e=>{if(!touchStart)return;const dx=e.changedTouches[0].clientX-touchStart[0],dy=e.changedTouches[0].clientY-touchStart[1];if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy))moveMobileSlide(dx<0?1:-1);touchStart=null;},{passive:true});renderMobileSlide();
+function updateMobileHeader(){mobile.querySelector('.m-header').classList.toggle('is-scrolled',mobile.querySelector('.m-hero').getBoundingClientRect().bottom<=64);}
+addEventListener('scroll',updateMobileHeader,{passive:true});addEventListener('resize',updateMobileHeader);updateMobileHeader();
