@@ -12,3 +12,13 @@ h1 { font-size: clamp(28px, 6vw, 46px); }
 body:has(.error-photo) h1 { font-size: clamp(82px, 16vw, 160px); margin: 0; }
 .home-button { display: inline-block; background: #292929; color: white; padding: 12px 24px; text-decoration: none; }
 .error-photo { display: block; width: 100%; max-height: 440px; object-fit: cover; margin-top: 28px; }
+.info-page body {font: 16px/1.65 Manrope, sans-serif}
+.info-page .sticky-menu {position:relative}
+.info-page .sticky-menu .copy {color:#292929!important}
+.info-page .canvas {margin:0;padding:0;display:block}
+.info-page .line {position:relative}
+.info-page .info-content {display:block!important;width:min(900px,calc(100% - 44px));margin:auto}
+.info-page .info-content a:not(.home-button) {text-decoration:underline}
+.info-page .footer {height:307px}
+.info-page .mobile-site nav {width:auto;margin:0}
+@media(max-width:1100px){.info-page body>footer{display:none}.info-page .m-header{position:relative}.info-page .mobile-site{overflow:visible}}
