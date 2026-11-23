@@ -24,7 +24,18 @@ function control(el,handler){let b=document.createElement('button');for(const a 
 document.querySelectorAll('a.copy').forEach(el=>{if(/Обсудить проект|Рассчитать стоимость/.test(el.textContent)){const b=control(el,openConsult);if(b.closest('#process'))b.classList.add('process-cta');}});
 document.querySelectorAll('#projects .underline').forEach(el=>{const y=parseFloat(el.style.top);control(el,()=>openProject(projects[y<1000?0:y<1600?1:2]));});
 document.querySelectorAll('#about .underline').forEach(el=>control(el,()=>openProject({title:'Пространство для жизни',image:'image-11.jpg',text:'Мы создаём интерьеры вокруг привычек и пожеланий людей. Работа начинается с разговора о вашем образе жизни и продолжается в планировке, выборе материалов и внимательной проработке деталей. Наш подход объединяет спокойную эстетику, функциональность и комфорт.'})));
-document.querySelectorAll('#services .underline').forEach(el=>{const y=parseFloat(el.style.top);const title=[...document.querySelectorAll('#services .copy')].find(p=>p.style.fontSize==='25px'&&Math.abs(parseFloat(p.style.top)-y)<5)?.textContent||'Дизайн-проект';control(el,()=>openProject({title,image:'image-9.jpg',text:'Обсудим ваши задачи и подготовим решение с учётом пространства, бюджета и желаемого результата. Согласуем этапы работы, материалы и детали, чтобы каждый шаг был понятным, а интерьер соответствовал вашему образу жизни.'}));});
+const serviceDetails = [
+ {image:'image-9.jpg',text:'Начинаем с обсуждения привычек, бюджета и задач. Затем разрабатываем планировку, подбираем материалы, мебель и свет и готовим рабочие чертежи для ремонта.'},
+ {image:'image-8.jpg',text:'Показываем будущий интерьер в фотореалистичных ракурсах. На визуализации можно сравнить оттенки отделки, увидеть, как работает свет, и уточнить расстановку мебели до начала ремонта.'},
+ {image:'image-11.jpg',text:'Во время ремонта сверяем выполненные работы с проектом, отвечаем на вопросы подрядчиков и согласовываем замены материалов. Если на объекте обнаружатся ограничения, уточняем детали проекта.'},
+ {image:'image-7.jpg',text:'Подбираем шторы, ковры, светильники и предметы декора под готовый интерьер. Продумываем, где разместить искусство и аксессуары, чтобы связать цвета и фактуры в каждой комнате.'}
+];
+document.querySelectorAll('#services .underline').forEach(el=>{
+ const y=parseFloat(el.style.top);
+ const title=[...document.querySelectorAll('#services .copy')].find(p=>p.style.fontSize==='25px'&&Math.abs(parseFloat(p.style.top)-y)<5).textContent;
+ const index=Math.round((y-208)/201);
+ control(el,()=>openProject({title,...serviceDetails[index]}));
+});
 // Three projects wrap in both directions; neighbouring images are controls too.
 const gallery=document.querySelector('#gallery .canvas:last-child');
 gallery.querySelectorAll('.copy').forEach(p=>{if(parseFloat(p.style.top)>240)p.hidden=true;});
@@ -140,7 +151,7 @@ mobile.innerHTML=`
 <section class="m-section m-gallery"><h2>Галерея выполненных работ</h2><p>Ознакомьтесь с нашими реализованными проектами, чтобы вдохновиться и понять, как мы можем преобразить ваше пространство.</p><div class="m-slide"></div><div class="m-gallery-controls"><button aria-label="Предыдущий проект"><svg viewBox="1201 7161 44 44" aria-hidden="true"><path d="M1220 7174.5L1211.5 7183L1220 7191.5 M1212 7183H1234"/></svg></button><button aria-label="Следующий проект"><svg viewBox="1261 7161 44 44" aria-hidden="true"><path d="M1286 7174.5L1294.5 7183L1286 7191.5 M1294 7183H1272"/></svg></button></div><p class="sr-only m-slide-status" aria-live="polite"></p></section>
 <section id="m-reviews" class="m-section m-dark"><h2>Отзывы о работе</h2><p class="m-intro">Ваше мнение для нас важно. Вот что говорят о нашей работе те, кто уже доверил нам создание своего идеального интерьера.</p><div class="m-review-list">${reviews.map((r,i)=>`<article class="m-review"><p>${r.text}</p><div>${imageTag('image-'+(i+1)+'.jpg',r.name)}<span>${r.name}</span></div></article>`).join('')}</div></section>
 <section id="m-contact" class="m-section"><h2>Дом, в который всегда хочется возвращаться</h2><p>Inter — команда, которая поможет вам воплотить в жизнь ваши мечты о доме.</p><h2 class="m-form-title">Обсудить проект</h2><form class="consult-form"><label><span class="sr-only">Ваше имя</span><input name="name" autocomplete="name" placeholder="Ваше имя" required></label><label><span class="sr-only">Телефон</span><input name="phone" type="tel" required></label><label class="form-consent"><input type="checkbox" required><span>Я даю своё согласие на обработку персональных данных и соглашаюсь с политикой конфиденциальности</span></label><button type="submit" class="ui-button">Получить консультацию</button><p class="form-status" role="status"></p></form><div class="m-contact-info"><h2>Контакты</h2><a href="tel:+78125550550">+7 (812) 555-05-50</a><a href="mailto:interior@gmail.com">interior@gmail.com</a><p>Санкт-Петербург, ул. Ленина, д. 89, офис 12</p></div>${imageTag('image-0.jpg','Интерьер гостиной Inter')}</section>
-<footer class="m-section m-dark"><a class="m-logo" href="./" aria-label="Inter — на главную">Inter</a><nav><a href="#m-projects">Наши проекты</a><a href="#m-services">Услуги</a><a href="#m-reviews">Отзывы</a><a href="#m-contact">Контакты</a></nav><p>Согласие на обработку персональных данных</p><p>Политика конфиденциальности</p></footer>`;
+<footer class="m-section m-dark"><a class="m-logo" href="./" aria-label="Inter — на главную">Inter</a><nav><a href="#m-projects">Наши проекты</a><a href="#m-services">Услуги</a><a href="#m-reviews">Отзывы</a><a href="#m-contact">Контакты</a></nav><p><a href="consent.html">Согласие на обработку персональных данных</a></p><p><a href="privacy.html">Политика конфиденциальности</a></p></footer>`;
 document.body.insertBefore(mobile,dialog);
 const menuToggle=mobile.querySelector('.m-menu-toggle'),mobileNav=mobile.querySelector('#mobile-navigation');
 function closeMobileMenu(){mobileNav.hidden=true;menuToggle.setAttribute('aria-expanded','false');menuToggle.setAttribute('aria-label','Открыть меню');}
@@ -150,7 +161,7 @@ mobile.querySelectorAll('[data-mobile-consult]').forEach(b=>b.onclick=()=>{close
 mobile.addEventListener('keydown',e=>{if(e.key==='Escape')closeMobileMenu();});
 mobile.querySelector('[data-about]').onclick=()=>document.querySelector('#about .interactive-copy').click();
 mobile.querySelectorAll('[data-project]').forEach(b=>b.onclick=()=>openProject(projects[Number(b.dataset.project)]));
-mobile.querySelectorAll('[data-service]').forEach(b=>b.onclick=()=>{const s=serviceItems[Number(b.dataset.service)];openProject({title:s.title,image:'image-9.jpg',text:s.description});});
+mobile.querySelectorAll('[data-service]').forEach(b=>b.onclick=()=>{const s=serviceItems[Number(b.dataset.service)];openProject({title:s.title,...serviceDetails[Number(b.dataset.service)]});});
 mobile.querySelectorAll('[data-award]').forEach(b=>b.onclick=()=>{mobile.querySelectorAll('[data-award]').forEach(el=>el.setAttribute('aria-pressed',String(el===b)));const p=projects[Number(b.dataset.award)];const fig=mobile.querySelector('.m-awards figure');fig.querySelector('img').src=assetRoot+p.image;fig.querySelector('img').alt=p.title;fig.querySelector('figcaption').textContent=p.title;});
 setupForm(mobile.querySelector('form'));
 let mobileSlide=0,mobileMoving=false;

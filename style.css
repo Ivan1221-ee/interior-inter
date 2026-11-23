@@ -84,3 +84,6 @@ body>main:not(.mobile-site),.sticky-menu{display:none!important}
 @keyframes menu-enter{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
 @keyframes dialog-enter{from{opacity:0;transform:translateY(12px) scale(.99)}to{opacity:1;transform:none}}
 @keyframes backdrop-enter{from{opacity:0}to{opacity:1}}
+
+.mobile-site .m-service .m-text-button { color: #b7b7b7; }
+.mobile-site footer p a:hover, .footer a.copy:hover { text-decoration: underline; }
