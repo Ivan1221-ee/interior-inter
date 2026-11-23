@@ -68,3 +68,19 @@ body>main:not(.mobile-site),.sticky-menu{display:none!important}
 .m-gallery{padding-left:0;padding-right:0}.m-gallery>h2,.m-gallery>p{margin-left:48px;margin-right:48px}.m-slide img{aspect-ratio:2.1}.m-slide span{padding-left:48px;padding-right:48px}.m-gallery-controls{margin-left:48px;margin-right:48px}
 .m-review-list{grid-template-columns:repeat(3,minmax(0,1fr))}.m-review:last-child{grid-column:auto}.m-review{padding:22px}.m-review p{font-size:15px}.m-review>div{gap:8px;font-size:13px}#m-contact{gap:24px 60px}
 }
+
+/* Keep gallery copy on the page grid while the photos scale to the viewport. */
+.gallery .gallery-heading{position:absolute;top:0;height:246px;transform:translateX(-50%);z-index:1;pointer-events:none}
+.gallery .carousel{top:calc(246px / var(--gallery-scale,1))}
+.gallery{height:calc(246px + 602px * var(--gallery-scale,1))}
+.m-steps li>span{flex:0 0 1.6em;font-variant-numeric:tabular-nums}
+.m-steps li>div{min-width:0}
+.m-header{transition:background-color .24s ease,color .24s ease,border-color .24s ease;border-bottom:1px solid transparent}
+@media(prefers-reduced-motion:no-preference){
+.sticky-menu:not([hidden]),.m-header nav:not([hidden]){animation:menu-enter .26s ease-out both}
+.site-dialog[open]{animation:dialog-enter .28s ease-out both}
+.site-dialog[open]::backdrop{animation:backdrop-enter .28s ease-out both}
+}
+@keyframes menu-enter{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes dialog-enter{from{opacity:0;transform:translateY(12px) scale(.99)}to{opacity:1;transform:none}}
+@keyframes backdrop-enter{from{opacity:0}to{opacity:1}}
